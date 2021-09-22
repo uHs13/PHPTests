@@ -1,0 +1,20 @@
+{
+    "name": "root/calculator",
+    "description": "PHP Tests",
+    "autoload": {
+        "psr-4": {
+            "Calculator\\": "src\\Calculator"
+        }
+    },
+    "authors": [
+        {
+            "name": "uHs13",
+            "email": "heitorhenriquedias@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "slim/slim": "4.*",
+        "slim/psr7": "dev-master"
+    }
+}

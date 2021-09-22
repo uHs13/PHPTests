@@ -1,0 +1,12 @@
+{
+    "autoload": {
+        "psr-4": {
+            "OrderBundle\\": "src\\OrderBundle",
+            "MyFramework\\": "app\\"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9",
+        "phpunit/php-code-coverage": "*"
+    }
+}
