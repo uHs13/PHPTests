@@ -2,7 +2,7 @@
     "autoload": {
         "psr-4": {
             "OrderBundle\\": "src\\OrderBundle",
-            "MyFramework\\": "app\\"
+            "MyFramework\\": "app\\MyFramework"
         }
     },
     "require-dev": {

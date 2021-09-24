@@ -8,47 +8,84 @@ use PHPUnit\Framework\TestCase;
 
 class BadWordsValidatorTest extends TestCase
 {
-    /**
-     * @test
-     * @dataProvider badWordsDataProvider
-     */
-    public function hasBadWords($badWordsList, $text, $foundBadWords)
+    public function getValidator(array $words): BadWordsValidator
     {
-        $badWordsRepository = $this->createMock(BadWordsRepository::class);
+        $badWordsRepository = $this->createMock(
+            BadWordsRepository::class
+        );
 
-        $badWordsRepository->method('findAllAsArray')
-            ->willReturn($badWordsList);
+        $badWordsRepository
+        ->method('findAllAsArray')
+        ->willReturn($words);
 
-        $badWordsValidator = new BadWordsValidator($badWordsRepository);
-
-        $hasBadWords = $badWordsValidator->hasBadWords($text);
-
-        $this->assertEquals($foundBadWords, $hasBadWords);
+        return new BadWordsValidator($badWordsRepository);
     }
 
-    public function badWordsDataProvider()
+    /**
+     * @test
+     * @dataProvider dataProvider
+     * */
+    public function hasBadWords(
+        array $words,
+        string $phrase,
+        bool $expected
+    ): void {
+        $badWordsValidator = $this->getValidator($words);
+
+        $this->assertEquals(
+            $expected,
+            $badWordsValidator->hasBadWords($phrase)
+        );
+    }
+
+    public function dataProvider(): array
     {
         return [
-            'shouldFindWhenHasBadWords' => [
-                'badWordsList' => ['bobo', 'chule', 'besta'],
-                'text' => 'Seu restaurante e muito bobo',
-                'foundBadWords' => true
+            'shouldNotBeValidIfHasBadWord' => [
+                'words' => ['badword', 'worstword', 'uglyword'],
+                'phrase' => 'This phrase contains a worstword',
+                'expected' => true
             ],
-            'shouldNotFindWhenHasNoBadWords' => [
-                'badWordsList' => ['bobo', 'chule', 'besta'],
-                'text' => 'Trocar batata por salada',
-                'foundBadWords' => false
+            'shouldBeValidIfHasNoOneBadWordInPhrase' => [
+                'words' => ['badword', 'worstword', 'uglyword'],
+                'phrase' => 'This phrase do not contains an invalid word',
+                'expected' => false
             ],
-            'shouldNotFindWhenTextIsEmpty' => [
-                'badWordsList' => ['bobo', 'chule', 'besta'],
-                'text' => '',
-                'foundBadWords' => false
+            'shouldBeValidIfBadWordsArrayIsEmpty' => [
+                'words' => [],
+                'phrase' => 'This phrase do not contains an invalid word',
+                'expected' => false
             ],
-            'shouldNotFindWhenBadWordsListIsEmpty' => [
-                'badWordsList' => [],
-                'text' => 'Seu restaurante e muito bobo',
-                'foundBadWords' => false
-            ]
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataProviderTypeMismatch
+     * @expectedException TypeError
+     * */
+    public function shouldNotBeValidInTypeMismatch(
+        $words,
+        $phrase
+    ): void {
+        $this->expectException(\TypeError::class);
+
+        $badWordsValidator = $this->getValidator($words);
+
+        $badWordsValidator->hasBadWords($phrase);
+    }
+
+    public function dataProviderTypeMismatch(): array
+    {
+        return [
+            'shouldNotBeValidWhenWordsIsNotArray' => [
+                'words' => 'badword',
+                'phrase' => 'just a phrase',
+            ],
+            'shouldNotBeValidWhenPhraseIsNotString' => [
+                'words' => ['badword'],
+                'phrase' => ['just a phrase'],
+            ],
         ];
     }
 }

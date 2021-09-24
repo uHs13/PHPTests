@@ -13,11 +13,11 @@ class BadWordsValidator
         $this->badWordsRepository = $badWordsRepository;
     }
 
-    public function hasBadWords($text)
+    public function hasBadWords(string $text)
     {
         $allBadWords = $this->badWordsRepository->findAllAsArray();
         foreach ($allBadWords as $badWord) {
-            if (strpos($text, $badWord) !== false) {
+            if (strpos($text, $badWord)) {
                 return true;
             }
         }

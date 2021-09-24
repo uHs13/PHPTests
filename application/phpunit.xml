@@ -34,6 +34,11 @@
                 src/OrderBundle/Test/Validators/CreditCardExpirationValidatorTest.php
             </directory>
         </testsuite>
+        <testsuite name="BadWordsValidatorTest">
+            <directory>
+                src/OrderBundle/Test/Service/BadWordsValidatorTest.php
+            </directory>
+        </testsuite>
         <testsuite name="CustomerTest">
             <directory>
                 src/OrderBundle/Test/Entity/CustomerTest.php
