@@ -6,15 +6,20 @@ use FidelityProgramBundle\Repository\PointsRepositoryInterface;
 
 class PointsRepositorySpy implements PointsRepositoryInterface
 {
-    private $called;
+	private $called;
 
-    public function save($points)
-    {
-        $this->called = true;
-    }
+	public function __construct()
+	{
+		$this->called = false;
+	}
 
-    public function called()
-    {
-        return $this->called;
-    }
+	public function save($points)
+	{
+		$this->called = true;
+	}
+
+	public function wasCalled()
+	{
+		return $this->called;
+	}
 }

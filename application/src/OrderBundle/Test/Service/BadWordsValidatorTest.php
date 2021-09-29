@@ -30,6 +30,7 @@ class BadWordsValidatorTest extends TestCase
         string $phrase,
         bool $expected
     ): void {
+
         $badWordsValidator = $this->getValidator($words);
 
         $this->assertEquals(
@@ -56,6 +57,11 @@ class BadWordsValidatorTest extends TestCase
                 'phrase' => 'This phrase do not contains an invalid word',
                 'expected' => false
             ],
+            'shouldBeValidIfPhraseIsEmpty' => [
+                'words' => [],
+                'phrase' => 'This phrase do not contains an invalid word',
+                'expected' => false
+            ],
         ];
     }
 
@@ -68,6 +74,7 @@ class BadWordsValidatorTest extends TestCase
         $words,
         $phrase
     ): void {
+
         $this->expectException(\TypeError::class);
 
         $badWordsValidator = $this->getValidator($words);

@@ -1,8 +1,10 @@
 {
     "autoload": {
         "psr-4": {
+            "FidelityProgramBundle\\": "src\\FidelityProgramBundle",
             "OrderBundle\\": "src\\OrderBundle",
-            "MyFramework\\": "app\\MyFramework"
+            "MyFramework\\": "app\\MyFramework",
+            "PaymentBundle\\": "src\\PaymentBundle"
         }
     },
     "require-dev": {

@@ -19,15 +19,19 @@ class Gateway
         LoggerInterface $logger,
         $user,
         $password
-    )
-    {
+    ) {
         $this->httpClient = $httpClient;
         $this->logger = $logger;
         $this->user = $user;
         $this->password = $password;
     }
 
-    public function pay($name, $creditCardNumber, \DateTime $validity = null, $value) {
+    public function pay(
+        $name,
+        $creditCardNumber,
+        $value,
+        \DateTime $validity = null,
+    ): bool {
 
         $token = $this->httpClient->send('POST', self::BASE_URL . '/authenticate', [
             'user' => $this->user,
@@ -47,7 +51,7 @@ class Gateway
             'token' => $token
         ]);
 
-        if (!$response['paid'] === true) {
+        if (!$response['paid']) {
             $this->logger->log('Payment failed');
             return false;
         }

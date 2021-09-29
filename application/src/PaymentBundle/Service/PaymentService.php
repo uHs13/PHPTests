@@ -18,20 +18,23 @@ class PaymentService
     public function __construct(
         Gateway $gateway,
         PaymentTransactionRepository $paymentTransactionRepository
-    )
-    {
+    ) {
         $this->gateway = $gateway;
         $this->paymentTransactionRepository = $paymentTransactionRepository;
     }
 
-    public function pay(Customer $customer, Item $item, CreditCard $creditCard)
-    {
+    public function pay(
+        Customer $customer,
+        Item $item,
+        CreditCard $creditCard
+    ) {
+
         for ($i = 0; $i < 3; $i++) {
             $paid = $this->gateway->pay(
                 $customer->getName(),
                 $creditCard->getNumber(),
+                $item->getValue(),
                 $creditCard->getValidity(),
-                $item->getValue()
             );
 
             if ($paid === true) {

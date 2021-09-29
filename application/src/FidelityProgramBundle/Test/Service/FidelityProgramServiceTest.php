@@ -2,9 +2,10 @@
 
 namespace FidelityProgramBundle\Test\Service;
 
-use FidelityProgramBundle\Repository\PointsRepository;
+use FidelityProgramBundle\Test\Service\PointsRepositorySpy;
 use FidelityProgramBundle\Service\FidelityProgramService;
 use FidelityProgramBundle\Service\PointsCalculator;
+use FidelityProgramBundle\Repository\PointsRepository;
 use MyFramework\LoggerInterface;
 use OrderBundle\Entity\Customer;
 use PHPUnit\Framework\TestCase;
@@ -13,66 +14,85 @@ class FidelityProgramServiceTest extends TestCase
 {
     /**
      * @test
-     */
-    public function shouldSaveWhenReceivePoints()
+     * */
+    public function shouldSaveWhenReceivePoints(): void
     {
+        //STUB AND MOCK
         $pointsRepository = $this->createMock(PointsRepository::class);
         $pointsRepository->expects($this->once())
-            ->method('save');
+        ->method('save');
+
+        /* SPY
+        $pointsRepository = new PointsRepositorySpy();
+        */
 
         $pointsCalculator = $this->createMock(PointsCalculator::class);
         $pointsCalculator->method('calculatePointsToReceive')
-            ->willReturn(100);
+        ->willReturn(100);
 
+        //$loggerInterface = $this->createMock(LoggerInterface::class);
         $allMessages = [];
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->method('log')
-            ->will($this->returnCallback(
-                function ($message) use (&$allMessages) {
-                    $allMessages[] = $message;
-                }
-            ));
 
-        $fidelityProgramService = new FidelityProgramService(
+        $loggerInterface = $this->createMock(LoggerInterface::class);
+        $loggerInterface->method('log')
+        ->will($this->returnCallback(
+            function ($message) use (&$allMessages) {
+                array_push($allMessages, $message);
+            }
+        ));
+
+        $fidelity = new FidelityProgramService(
             $pointsRepository,
             $pointsCalculator,
-            $logger
+            $loggerInterface
         );
 
-        $customer = $this->createMock(Customer::class);
-        $value = 50;
-        $fidelityProgramService->addPoints($customer, $value);
+        $fidelity->addPoints(
+            $this->createMock(Customer::class),
+            100
+        );
+
+        /* SPY
+        $this->assertTrue(
+            $pointsRepository->wasCalled()
+        );
+        */
 
         $expectedMessages = [
             'Checking points for customer',
             'Customer received points'
         ];
-        $this->assertEquals($expectedMessages, $allMessages);
+
+        $this->assertEquals(
+            $expectedMessages,
+            $allMessages
+        );
     }
 
     /**
      * @test
-     */
-    public function shouldNotSaveWhenReceiveZeroPoints()
+     * */
+    public function shouldNotSaveWhenReceiveZeroPoints(): void
     {
         $pointsRepository = $this->createMock(PointsRepository::class);
         $pointsRepository->expects($this->never())
-            ->method('save');
+        ->method('save');
 
         $pointsCalculator = $this->createMock(PointsCalculator::class);
         $pointsCalculator->method('calculatePointsToReceive')
-            ->willReturn(0);
+        ->willReturn(0);
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $loggerInterface = $this->createMock(LoggerInterface::class);
 
-        $fidelityProgramService = new FidelityProgramService(
+        $fidelity = new FidelityProgramService(
             $pointsRepository,
             $pointsCalculator,
-            $logger
+            $loggerInterface
         );
 
-        $customer = $this->createMock(Customer::class);
-        $value = 20;
-        $fidelityProgramService->addPoints($customer, $value);
+        $fidelity->addPoints(
+            $this->createMock(Customer::class),
+            100
+        );
     }
 }

@@ -44,5 +44,30 @@
                 src/OrderBundle/Test/Entity/CustomerTest.php
             </directory>
         </testsuite>
+        <testsuite name="FidelityProgramServiceTest">
+            <directory>
+                src/FidelityProgramBundle/Test/Service/FidelityProgramServiceTest.php
+            </directory>
+        </testsuite>
+        <testsuite name="GatewayTest">
+            <directory>
+                src/PaymentBundle/Test/Service/GatewayTest.php
+            </directory>
+        </testsuite>
+        <testsuite name="GatewayMockTest">
+            <directory>
+                src/PaymentBundle/Test/Service/GatewayMockTest.php
+            </directory>
+        </testsuite>
+        <testsuite name="GatewayMockReturnOrderTest">
+            <directory>
+                src/PaymentBundle/Test/Service/GatewayMockReturnOrderTest.php
+            </directory>
+        </testsuite>
+        <testsuite name="PaymentServiceTest">
+            <directory>
+                src/PaymentBundle/Test/Service/PaymentServiceTest.php
+            </directory>
+        </testsuite>
     </testsuites>
 </phpunit>

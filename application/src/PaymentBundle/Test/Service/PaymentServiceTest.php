@@ -13,66 +13,43 @@ use PHPUnit\Framework\TestCase;
 
 class PaymentServiceTest extends TestCase
 {
-    private $gateway;
-    private $paymentTransactionRepository;
-    private $paymentService;
-    private $customer;
-    private $item;
-    private $creditCard;
-
-    public function setUp()
-    {
-        $this->gateway = $this->createMock(Gateway::class);
-        $this->paymentTransactionRepository = $this->createMock(PaymentTransactionRepository::class);
-        $this->paymentService = new PaymentService($this->gateway, $this->paymentTransactionRepository);
-
-        $this->customer = $this->createMock(Customer::class);
-        $this->item = $this->createMock(Item::class);
-        $this->creditCard = $this->createMock(CreditCard::class);
-    }
-
     /**
      * @test
-     */
-    public function shouldSaveWhenGatewayReturnOkWithRetries()
+     * */
+    public function shouldSaveWhenGatewayReturnTrueWithRetries(): void
     {
-        $this->gateway
-            ->expects($this->atLeast(3))
-            ->method('pay')
-            ->will($this->onConsecutiveCalls(
-                false, false, true
-            ));
+        $gateway = $this->createMock(Gateway::class);
+        
+        $paymentTransaction = $this->createMock(
+            PaymentTransactionRepository::class
+        );
+        
+        $customer = $this->createMock(Customer::class);
+        
+        $item = $this->createMock(Item::class);
+        
+        $creditCard = $this->createMock(CreditCard::class);
 
-        $this->paymentTransactionRepository
-            ->expects($this->once())
-            ->method('save');
+        $paymentService = new PaymentService(
+            $gateway,
+            $paymentTransaction
+        );
 
-        $this->paymentService->pay($this->customer, $this->item, $this->creditCard);
-    }
+        $gateway->expects($this->atLeast(3))
+        ->method('pay')
+        ->will($this->onConsecutiveCalls(
+            false,
+            false,
+            true
+        ));
 
-    /**
-     * @test
-     */
-    public function shouldThrowExceptionWhenGatewayFails()
-    {
-        $this->gateway
-            ->expects($this->atLeast(3))
-            ->method('pay')
-            ->will($this->onConsecutiveCalls(
-                false, false, false
-            ));
+        $paymentTransaction->expects($this->once())
+        ->method('save');
 
-        $this->paymentTransactionRepository
-            ->expects($this->never())
-            ->method('save');
-
-        $this->expectException(PaymentErrorException::class);
-
-        $this->paymentService->pay($this->customer, $this->item, $this->creditCard);
-    }
-
-    public function tearDown()
-    {
-        unset($this->gateway);
+        $paymentService->pay(
+            $customer,
+            $item,
+            $creditCard
+        );
     }
 }
