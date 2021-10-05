@@ -6,11 +6,11 @@ use FidelityProgramBundle\Service\FidelityProgramService;
 use OrderBundle\Exception\CustomerNotAllowedException;
 use OrderBundle\Exception\ItemNotAvailableException;
 use OrderBundle\Exception\BadWordsFoundException;
+use OrderBundle\Repository\OrderRepository;
 use OrderBundle\Entity\CreditCard;
 use OrderBundle\Entity\Customer;
-use OrderBundle\Entity\Item;
 use OrderBundle\Entity\Order;
-use OrderBundle\Repository\OrderRepository;
+use OrderBundle\Entity\Item;
 use PaymentBundle\Service\PaymentService;
 
 class OrderService
@@ -37,7 +37,7 @@ class OrderService
         Item $item,
         $description,
         CreditCard $creditCard
-    ) {
+    ): Order {
 
         $this->validateConditions(
             $customer,
@@ -45,18 +45,20 @@ class OrderService
             $description
         );
 
-        $order = $this->createOrder(
+        return $this->createOrder(
             $customer,
             $item,
             $description,
             $creditCard
         );
-
-        return $order;
     }
 
-    private function validateConditions(Customer $customer, Item $item, $description)
-    {
+    private function validateConditions(
+        Customer $customer,
+        Item $item,
+        $description
+    ): void {
+        
         if (!$customer->isAllowedToOrder()) {
             throw new CustomerNotAllowedException();
         }
@@ -75,7 +77,7 @@ class OrderService
         Item $item,
         $description,
         CreditCard $creditCard
-    ) {
+    ): Order {
 
         $paymentTransaction = $this->paymentService->pay(
             $customer,

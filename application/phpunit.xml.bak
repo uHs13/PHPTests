@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" colors="true" bootstrap="vendor/autoload.php" stopOnFailure="false" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <logging>
+        <log type="coverage-html" target="report" lowUpperBound="35" highLowerBound="70"/>
+    </logging>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">src</directory>
+            <exclude>
+                <directory suffix="Test.php">src</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+<testsuites>
+  <testsuite name="NotEmptyValidatorTest">
+    <directory>
+      src/OrderBundle/Test/Validators/NotEmptyValidatorTest.php
+    </directory>
+  </testsuite>
+  <testsuite name="NumericValidatorTest">
+    <directory>
+      src/OrderBundle/Test/Validators/NumericValidatorTest.php
+    </directory>
+  </testsuite>
+  <testsuite name="CreditCardNumberValidatorTest">
+    <directory>
+      src/OrderBundle/Test/Validators/CreditCardNumberValidatorTest.php
+    </directory>
+  </testsuite>
+  <testsuite name="CreditCardExpirationValidatorTest">
+    <directory>
+      src/OrderBundle/Test/Validators/CreditCardExpirationValidatorTest.php
+    </directory>
+  </testsuite>
+  <testsuite name="BadWordsValidatorTest">
+    <directory>
+      src/OrderBundle/Test/Service/BadWordsValidatorTest.php
+    </directory>
+  </testsuite>
+  <testsuite name="CustomerTest">
+    <directory>
+      src/OrderBundle/Test/Entity/CustomerTest.php
+    </directory>
+  </testsuite>
+  <testsuite name="OrderServiceTest">
+    <directory>
+      src/OrderBundle/Test/Service/OrderServiceTest.php
+    </directory>
+  </testsuite>
+  <testsuite name="OrderServiceFluentInterfaceTest">
+    <directory>
+      src/OrderBundle/Test/Service/OrderServiceFluentInterfaceTest.php
+    </directory>
+  </testsuite>
+  <testsuite name="FidelityProgramServiceTest">
+    <directory>
+      src/FidelityProgramBundle/Test/Service/FidelityProgramServiceTest.php
+    </directory>
+  </testsuite>
+  <testsuite name="GatewayTest">
+    <directory>
+      src/PaymentBundle/Test/Service/GatewayTest.php
+    </directory>
+  </testsuite>
+  <testsuite name="GatewayMockTest">
+    <directory>
+      src/PaymentBundle/Test/Service/GatewayMockTest.php
+    </directory>
+  </testsuite>
+  <testsuite name="GatewayMockReturnOrderTest">
+    <directory>
+      src/PaymentBundle/Test/Service/GatewayMockReturnOrderTest.php
+    </directory>
+  </testsuite>
+  <testsuite name="PaymentServiceTest">
+    <directory>
+      src/PaymentBundle/Test/Service/PaymentServiceTest.php
+    </directory>
+  </testsuite>
+</testsuites>
+</phpunit>

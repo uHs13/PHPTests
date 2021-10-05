@@ -4,7 +4,7 @@ namespace FidelityProgramBundle\Service;
 
 class PointsCalculator
 {
-    public function calculatePointsToReceive($value)
+    public function calculatePointsToReceive($value): int
     {
         if ($value > 100) {
             return $this->calculate($value, 5);
@@ -21,7 +21,7 @@ class PointsCalculator
         return 0;
     }
 
-    private function calculate($value, $multiply)
+    private function calculate($value, $multiply): int
     {
         return ($value * $multiply) * 10;
     }

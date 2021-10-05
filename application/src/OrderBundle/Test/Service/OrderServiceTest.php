@@ -3,21 +3,23 @@
 namespace OrderBundle\Test\Service;
 
 use FidelityProgramBundle\Service\FidelityProgramService;
-use OrderBundle\Entity\CreditCard;
-use OrderBundle\Entity\Customer;
-use OrderBundle\Entity\Item;
-use OrderBundle\Exception\BadWordsFoundException;
 use OrderBundle\Exception\CustomerNotAllowedException;
 use OrderBundle\Exception\ItemNotAvailableException;
+use OrderBundle\Exception\BadWordsFoundException;
 use OrderBundle\Repository\OrderRepository;
 use OrderBundle\Service\BadWordsValidator;
 use OrderBundle\Service\OrderService;
+use OrderBundle\Entity\CreditCard;
+use OrderBundle\Entity\Customer;
+use OrderBundle\Entity\Item;
 use PaymentBundle\Entity\PaymentTransaction;
 use PaymentBundle\Service\PaymentService;
 use PHPUnit\Framework\TestCase;
 
 class OrderServiceTest extends TestCase
 {
+    const DESCRIPTION = 'Just a phrase';
+
     private $badWordsValidator;
     private $paymentService;
     private $orderRepository;
@@ -27,168 +29,167 @@ class OrderServiceTest extends TestCase
     private $creditCard;
     private $orderService;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->badWordsValidator = $this->createMock(BadWordsValidator::class);
-        $this->paymentService = $this->createMock(PaymentService::class);
-        $this->orderRepository = $this->createMock(OrderRepository::class);
-        $this->fidelityProgramService = $this->createMock(FidelityProgramService::class);
-
-        $this->customer = $this->createMock(Customer::class);
-        $this->item = $this->createMock(Item::class);
-        $this->creditCard = $this->createMock(CreditCard::class);
-    }
-
-    /**
-     * @test
-     */
-    public function shouldNotProcessWhenCustomerIsNotAllowed()
-    {
-        $this->withOrderService()
-            ->withCustomerNotAllowed();
-
-        $this->expectException(CustomerNotAllowedException::class);
-
-        $this->orderService->process(
-            $this->customer,
-            $this->item,
-            '',
-            $this->creditCard
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function shouldNotProcessWhenItemIsNotAvailable()
-    {
-        $this->withOrderService()
-            ->withCustomerAllowed()
-            ->withNotAvailableItem();
-
-        $this->expectException(ItemNotAvailableException::class);
-
-        $this->orderService->process(
-            $this->customer,
-            $this->item,
-            '',
-            $this->creditCard
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function shouldNotProcessWhenBadWordsIsFound()
-    {
-        $this->withOrderService()
-            ->withCustomerAllowed()
-            ->withAvailableItem()
-            ->withBadWordsFound();
-
-        $this->expectException(BadWordsFoundException::class);
-
-        $this->orderService->process(
-            $this->customer,
-            $this->item,
-            '',
-            $this->creditCard
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function shouldSuccessfullyProcess()
-    {
-        $this->withOrderService()
-            ->withCustomerAllowed()
-            ->withAvailableItem()
-            ->withBadWordsNotFound();
-
-        $paymentTransaction = $this->createMock(PaymentTransaction::class);
-
-        $this->paymentService
-            ->method('pay')
-            ->willReturn($paymentTransaction);
-
-        $this->orderRepository
-            ->expects($this->once())
-            ->method('save');
-
-        $createdOrder = $this->orderService->process(
-            $this->customer,
-            $this->item,
-            '',
-            $this->creditCard
+        $this->badWordsValidator = $this->createMock(
+            BadWordsValidator::class
         );
 
-        $this->assertNotEmpty($createdOrder->getPaymentTransaction());
-    }
+        $this->paymentService = $this->createMock(
+            PaymentService::class
+        );
 
-    public function withOrderService()
-    {
+        $this->orderRepository = $this->createMock(
+            OrderRepository::class
+        );
+
+        $this->fidelityProgramService = $this->createMock(
+            FidelityProgramService::class
+        );
+
+        $this->customer = $this->createMock(
+            Customer::class
+        );
+
+        $this->item = $this->createMock(
+            Item::class
+        );
+
+        $this->creditCard = $this->createMock(
+            CreditCard::class
+        );
+
         $this->orderService = new OrderService(
             $this->badWordsValidator,
             $this->paymentService,
             $this->orderRepository,
             $this->fidelityProgramService
         );
-
-        return $this;
     }
 
-    public function withCustomerNotAllowed()
+    public function getOrderServiceProcessData(): array
+    {
+        return [
+            $this->customer,
+            $this->item,
+            self::DESCRIPTION,
+            $this->creditCard
+        ];
+    }
+
+    /**
+     * @test
+     * @expectedException OrderBundle\Exception\CustomerNotAllowedException
+     * */
+    public function shouldThrowAnExceptionWhenClientisNotAllowedToOrder()
+    {
+        $this->expectException(CustomerNotAllowedException::class);
+
+        $this->customer->expects($this->once())
+        ->method('isAllowedToOrder')
+        ->willReturn(false);
+
+        $this->orderService->process(
+            ...$this->getOrderServiceProcessData()
+        );
+    }
+
+    /**
+     * @test
+     * @expectedException OrderBundle\Exception\ItemNotAvailableException
+     * */
+    public function shouldThrowAnExceptionWhenItemisNotAvailable()
+    {
+        $this->expectException(ItemNotAvailableException::class);
+
+        $this->customer
+        ->method('isAllowedToOrder')
+        ->willReturn(true);
+
+        $this->item->expects($this->once())
+        ->method('isAvailable')
+        ->willReturn(false);
+
+        $this->orderService->process(
+            ...$this->getOrderServiceProcessData()
+        );
+    }
+
+    /**
+     * @test
+     * @expectedException OrderBundle\Exception\BadWordsFoundException
+     * */
+    public function shouldThrowAnExceptionWhenDescriptionHasBadWords()
+    {
+        $this->expectException(BadWordsFoundException::class);
+
+        $this->customer
+        ->method('isAllowedToOrder')
+        ->willReturn(true);
+
+        $this->item
+        ->method('isAvailable')
+        ->willReturn(true);
+
+        $this->badWordsValidator->expects($this->once())
+        ->method('hasBadWords')
+        ->willReturn(true);
+
+        $this->orderService->process(
+            ...$this->getOrderServiceProcessData()
+        );
+    }
+
+    /**
+     * @test
+     * */
+    public function shouldSuccessfullyCreateOrder()
     {
         $this->customer
-            ->method('isAllowedToOrder')
-            ->willReturn(false);
+        ->method('isAllowedToOrder')
+        ->willReturn(true);
 
-        return $this;
-    }
-
-    public function withCustomerAllowed()
-    {
-        $this->customer
-            ->method('isAllowedToOrder')
-            ->willReturn(true);
-
-        return $this;
-    }
-
-    public function withNotAvailableItem()
-    {
         $this->item
-            ->method('isAvailable')
-            ->willReturn(false);
+        ->method('isAvailable')
+        ->willReturn(true);
 
-        return $this;
-    }
-
-    public function withAvailableItem()
-    {
-        $this->item
-            ->method('isAvailable')
-            ->willReturn(true);
-
-        return $this;
-    }
-
-    public function withBadWordsFound()
-    {
         $this->badWordsValidator
-            ->method('hasBadWords')
-            ->willReturn(true);
+        ->method('hasBadWords')
+        ->willReturn(false);
 
-        return $this;
+        $this->paymentService->expects($this->once())
+        ->method('pay')
+        ->willReturn(
+            $this->createMock(PaymentTransaction::class)
+        );
+
+        $this->orderRepository->expects($this->once())
+        ->method('save');
+
+        $this->fidelityProgramService->expects($this->once())
+        ->method('addPoints');
+
+        $order = $this->orderService->process(
+            $this->customer,
+            $this->item,
+            self::DESCRIPTION,
+            $this->creditCard
+        );
+
+        $this->assertNotEmpty($order);
     }
 
-    public function withBadWordsNotFound()
+    public function tearDown(): void
     {
-        $this->badWordsValidator
-            ->method('hasBadWords')
-            ->willReturn(false);
-
-        return $this;
+        unset(
+            $this->badWordsValidator,
+            $this->paymentService,
+            $this->orderRepository,
+            $this->fidelityProgramService,
+            $this->customer,
+            $this->item,
+            $this->creditCard,
+            $this->orderService,
+        );
     }
 }

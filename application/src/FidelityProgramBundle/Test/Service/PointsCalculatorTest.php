@@ -7,24 +7,55 @@ use PHPUnit\Framework\TestCase;
 
 class PointsCalculatorTest extends TestCase
 {
-    /**
-     * @dataProvider valueDataProvider
-     */
-    public function testPointsToReceive($value, $expectedPoints)
-    {
-        $pointsCalculator = new PointsCalculator();
-        $points = $pointsCalculator->calculatePointsToReceive($value);
+   private $pointsCalculator;
 
-        $this->assertEquals($expectedPoints, $points);
-    }
+   public function setUp(): void
+   {
+      $this->pointsCalculator = new PointsCalculator();
+   }
 
-    public function valueDataProvider()
-    {
-        return [
-            [30, 0],
-            [55, 1100],
-            [75, 2250],
-            [110, 5500]
-        ];
-    }
+   /**
+    * @test
+    * @dataProvider dataProvider
+    * */
+   public function isValid(
+      $value,
+      int $expected
+   ): void {
+
+      $this->assertEquals(
+         $expected,
+         $this->pointsCalculator->calculatePointsToReceive($value)
+      );
+   }
+
+   public function dataProvider(): array
+   {
+      return [
+         'shouldReturn50TimesWhenGreaterThan100' => [
+            'value' => 101,
+            'expected' => 5050
+         ],
+         'shouldReturn30TimesWhenGreaterThan70' => [
+            'value' => 71,
+            'expected' => 2130
+         ],
+         'shouldReturn20TimesWhenGreaterThan50' => [
+            'value' => 51,
+            'expected' => 1020
+         ],
+         'shouldReturn0WhenLowerThan50' => [
+            'value' => 49,
+            'expected' => 0
+         ],
+         'shouldReturn0WhenEmpty' => [
+            'value' => '',
+            'expected' => 0
+         ],
+         'shouldReturn0WhenNull' => [
+            'value' => null,
+            'expected' => 0
+         ],
+      ];
+   }
 }
