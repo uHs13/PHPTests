@@ -51,6 +51,11 @@
       src/OrderBundle/Test/Service/OrderServiceFluentInterfaceTest.php
     </directory>
     </testsuite>
+    <testsuite name="CustomerCategoryServiceTest">
+      <directory>
+      src/OrderBundle/Test/Service/CustomerCategoryServiceTest.php
+    </directory>
+    </testsuite>
     <testsuite name="GatewayTest">
       <directory>
       src/PaymentBundle/Test/Service/GatewayTest.php
